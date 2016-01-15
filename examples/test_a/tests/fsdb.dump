@@ -1,0 +1,2 @@
+fsdbDumpvars 0 "test" +fsdbfile+test_fsdb.fsdb
+run

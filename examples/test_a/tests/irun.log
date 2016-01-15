@@ -1,0 +1,126 @@
+irun(64): 13.20-s007: (c) Copyright 1995-2014 Cadence Design Systems, Inc.
+TOOL:	irun(64)	13.20-s007: Started on Jan 15, 2016 at 12:41:38 KST
+irun
+	-64
+	-nclibdirname sim_build
+	-plinowarn
+	-sv
+	-v93
+	-loadvpi /user/hjnoh/WORK/cocotb/build/libs/x86_64/libvpi
+	+access+rwc
+	+incdir+../../axi_pm/rtl
+	../../axi_pm/rtl/axi_port_define.v
+	../../axi_pm/rtl/AXI_PM_CSR.v
+	../../axi_pm/rtl/axi_pm.v
+	../../axi_pm/rtl/axi_read_wrapper.v
+	../../axi_pm/rtl/ivsn_mon.v
+	../../axi_pm/rtl/max.v
+	../../axi_pm/rtl/min.v
+	../../axi_pm/rtl/pm_mon.v
+	../../axi_pm/rtl/pm_sub.v
+	../../axi_pm/rtl/rd_cnt.v
+	../../axi_pm/rtl/reset_sync.v
+	../../axi_pm/rtl/sync.v
+	../../axi_pm/rtl/tick_cnt.v
+	../../axi_pm/rtl/wr_cnt.v
+file: ../../axi_pm/rtl/axi_pm.v
+	module worklib.axi_pm:v
+		errors: 0, warnings: 0
+file: ../../axi_pm/rtl/ivsn_mon.v
+	module worklib.ivsn_mon:v
+		errors: 0, warnings: 0
+file: ../../axi_pm/rtl/pm_mon.v
+	module worklib.pm_mon:v
+		errors: 0, warnings: 0
+file: ../../axi_pm/rtl/pm_sub.v
+	module worklib.pm_sub:v
+		errors: 0, warnings: 0
+file: ../../axi_pm/rtl/rd_cnt.v
+	module worklib.rd_cnt:v
+		errors: 0, warnings: 0
+file: ../../axi_pm/rtl/wr_cnt.v
+	module worklib.wr_cnt:v
+		errors: 0, warnings: 0
+		Caching library 'worklib' ....... Done
+	Elaborating the design hierarchy:
+)u_AXI_PM_CSR(
+            |
+ncelab: *W,CUVWSP (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/axi_pm.v,233|12): 20 output ports were not connected:
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,52): AXI_PM_CSR_inst_INVASIONCount_IVSN_CNT_00
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,53): AXI_PM_CSR_inst_INVASIONInfo_IVSN_INFO_00
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,54): AXI_PM_CSR_inst_INVASIONInfo_IVSN_INFO_01
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,55): AXI_PM_CSR_inst_INVASIONInfo_IVSN_INFO_02
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,56): AXI_PM_CSR_inst_INVASIONInfo_IVSN_INFO_03
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,61): AXI_PM_CSR_inst_PERF_RDCount_PERF_RD_CNT_00_PERF_RD_CNT_00
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,62): AXI_PM_CSR_inst_PERF_RDCount_PERF_RD_CNT_01_PERF_RD_CNT_01
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,63): AXI_PM_CSR_inst_PERF_RDBW_PERF_RD_BW_00_PERF_RD_BW_00
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,64): AXI_PM_CSR_inst_PERF_RDBW_PERF_RD_BW_01_PERF_RD_BW_01
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,65): AXI_PM_CSR_inst_PERF_RDWC_PERF_RD_WC_00_PERF_RD_WC_00
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,66): AXI_PM_CSR_inst_PERF_RDWC_PERF_RD_WC_01_PERF_RD_WC_01
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,67): AXI_PM_CSR_inst_PERF_RDWC_MIN_PERF_RD_WC_MIN_00_PERF_RD_WC_MIN_00
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,68): AXI_PM_CSR_inst_PERF_RDWC_MIN_PERF_RD_WC_MIN_01_PERF_RD_WC_MIN_01
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,69): AXI_PM_CSR_inst_PERF_RDWC_MAX_PERF_RD_WC_MAX_PERF_RD_WC_MAX_00
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,70): AXI_PM_CSR_inst_PERF_RDWC_MAX_PERF_RD_WC_MAX_01_PERF_RD_WC_MAX_01
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,71): AXI_PM_CSR_inst_PERF_WRCount_PERF_WR_CNT_00_PERF_WR_CNT_00
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,72): AXI_PM_CSR_inst_PERF_WRCount_PERF_WR_CNT_01_PERF_WR_CNT_01
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,73): AXI_PM_CSR_inst_PERF_WRBW_PERF_WR_BW_00_PERF_WR_BW_00
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,74): AXI_PM_CSR_inst_PERF_WRBW_PERF_WR_BW_01_PERF_WR_BW_01
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/AXI_PM_CSR.v,75): AXI_PM_CSR_inst_PERF_CLKCount_PERF_CLK_CNT
+
+axi_read_wrapper u_axi_read_wrapper (
+                                  |
+ncelab: *W,CUVWSI (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/axi_pm.v,293|34): 1 input port was not connected:
+ncelab: (/user/hjnoh/WORK/cocotb/examples/axi_pm/rtl/axi_read_wrapper.v,42): i_PREADY
+
+	Top level design units:
+		axi_pm
+	Building instance overlay tables: .................... Done
+	Generating native compiled code:
+		worklib.AXI_PM_CSR:v <0x3e0e839a>
+			streams: 243, words: 68077
+		worklib.axi_pm:v <0x32899e4d>
+			streams:   4, words:   793
+		worklib.axi_read_wrapper:v <0x263f2c42>
+			streams:  14, words:  7019
+		worklib.ivsn_mon:v <0x40382963>
+			streams:  67, words: 17623
+		worklib.max:v <0x671203ba>
+			streams:   6, words:  2088
+		worklib.min:v <0x44e368aa>
+			streams:  10, words:  3238
+		worklib.pm_sub:v <0x0b334d27>
+			streams:  19, words:  7748
+		worklib.rd_cnt:v <0x1f1541b3>
+			streams:   5, words:  2238
+		worklib.reset_sync:v <0x05ca3c3d>
+			streams:   3, words:   656
+		worklib.reset_sync:v <0x2d639b7e>
+			streams:   3, words:   656
+		worklib.sync:v <0x0cf4b676>
+			streams:   3, words:   841
+		worklib.sync:v <0x0ded5fdb>
+			streams:   3, words:   836
+		worklib.sync:v <0x3964df33>
+			streams:   3, words:   841
+		worklib.tick_cnt:v <0x50c73d6b>
+			streams:   6, words:  1602
+		worklib.wr_cnt:v <0x2a785cdd>
+			streams:   5, words:  2238
+	Building instance specific data structures.
+	Loading native compiled code:     .................... Done
+	Design hierarchy summary:
+		               Instances  Unique
+		Modules:              30      13
+		Registers:           136      90
+		Scalar wires:        193       -
+		Vectored wires:      315       -
+		Always blocks:       118      84
+		Cont. assignments:   165     538
+		Pseudo assignments:    9       6
+	Writing initial simulation snapshot: worklib.axi_pm:v
+Loading snapshot worklib.axi_pm:v .................... Done
+ncsim> source /cae2/SCH_TDK/Tools_Eval/Logic/LDV/INCISIV13.20.007_lnx86.Hotfix/tools/inca/files/ncsimrc
+ncsim> run
+Simulation interrupted at 672035 US + 1
+ncsim> exit
+TOOL:	irun(64)	13.20-s007: Exiting on Jan 15, 2016 at 12:42:08 KST  (total: 00:00:30)

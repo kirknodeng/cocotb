@@ -43,12 +43,14 @@ $(SIM_BUILD)/pli.tab :
 $(SIM_BUILD)/simv: $(SIM_BUILD) $(VERILOG_SOURCES) $(SIM_BUILD)/pli.tab $(COCOTB_LIBS) $(COCOTB_VPI_LIB) $(CUSTOM_COMPILE_DEPS)
 	cd $(SIM_BUILD) && \
     LD_LIBRARY_PATH=$(LIB_DIR):$(LD_LIBRARY_PATH) TOPLEVEL=$(TOPLEVEL) \
-    vcs +acc+1 +vpi -P pli.tab +define+COCOTB_SIM=1 -sverilog $(EXTRA_ARGS) -debug -load libvpi.so $(COMPILE_ARGS) $(VERILOG_SOURCES)
+    vcs +vcs+lic+wait +acc+1 +vpi -P pli.tab +define+COCOTB_SIM=1 -sverilog $(EXTRA_ARGS) -debug_access+all -debug_region=cell -lca -LDFLAGS -rdynamic -load libvpi.so $(COMPILE_ARGS) $(INCDIRS) $(VERILOG_SOURCES)
 
 # Execution phase
 results.xml: $(SIM_BUILD)/simv $(PYTHON_FILES) $(CUSTOM_SIM_DEPS)
 	-PYTHONPATH=$(LIB_DIR):$(SIM_ROOT):$(PWD):$(PYTHONPATH) LD_LIBRARY_PATH=$(LIB_DIR):$(LD_LIBRARY_PATH) MODULE=$(MODULE) TESTCASE=$(TESTCASE) TOPLEVEL=$(TOPLEVEL) \
-        $(SIM_BUILD)/simv +define+COCOTB_SIM=1 $(SIM_ARGS) $(EXTRA_ARGS)
+		TOPLEVEL_LANG=$(TOPLEVEL_LANG) \
+        $(SIM_BUILD)/simv +vcs+lic+wait +define+COCOTB_SIM=1 $(SIM_ARGS) $(FSDB_DUMP)
+        #$(SIM_BUILD)/simv +vcs+lic+wait +define+COCOTB_SIM=1 $(SIM_ARGS) $(EXTRA_ARGS) $(FSDB_DUMP)
 
 
 .PHONY: clean

@@ -1,0 +1,76 @@
+make results.xml
+make[1]: Entering directory `/user/hjnoh/WORK/cocotb/examples/adder/tests'
+cd sim_build && \
+    LD_LIBRARY_PATH=/user/hjnoh/WORK/cocotb/build/libs/x86_64:/sw/Tools/Logic/Novas/Novas-2014.03-SP1/share/PLI/VCS/LINUX64:/sw/Tools/Logic/Novas/Novas-2014.03-SP1/share/PLI/MODELSIM/LINUX64:/sw/Tools/Logic/Novas/Novas-2014.03-SP1/share/PLI/IUS/LINUX64:/sw/Tools/Logic/Novas/Novas-2014.03-SP1/share/PLI/IUS/LINUX64/boot:/sw/Tools/Logic/Novas/Novas-2014.03-SP1/share/PLI/IUS/LINUX:/sw/Tools/Logic/Novas/Novas-2014.03-SP1/share/PLI/IUS/LINUX/boot:/sw/Tools_Eval/Logic/Verdi/Novas-2015.09/share/PLI/IUS/LINUX64:/sw/Tools_Eval/Logic/Verdi/Novas-2015.09/share/PLI/MODELSIM/LINUX64:/sw/Tools_Eval/Logic/Verdi/Novas-2015.09/share/PLI/VCS/LINUX64:/lib:/sw/Tools/Logic/VCS-MX/2014.03/gnu/linux/gcc-4.7.2_64-shared/lib64:/sw/Tools/Logic/VCS-MX/2014.03/gnu/linux/gcc-4.7.2_64-shared/lib:/usr/lib:/usr/lib64:/user/hjnoh/local/lib:/user/hjnoh/local/lib:/user/hjnoh/local/lib:/user/hjnoh/local/lib TOPLEVEL=adder \
+    vcs +acc+1 +vpi -P pli.tab +define+COCOTB_SIM=1 -sverilog -full64 -debug -load libvpi.so  /user/hjnoh/WORK/cocotb/examples/adder/tests/../hdl/adder.v
+                         Chronologic VCS (TM)
+       Version J-2014.12-SP3_Full64 -- Fri Nov 13 14:57:29 2015
+               Copyright (c) 1991-2014 by Synopsys Inc.
+                         ALL RIGHTS RESERVED
+
+This program is proprietary and confidential information of Synopsys Inc.
+and may be used and disclosed only as authorized in a license agreement
+controlling such use and disclosure.
+
+     -.--ns INFO     cocotb.gpi                                GpiCommon.cpp:47   in gpi_print_registered_impl       VPI registered
+     -.--ns ERROR    cocotb.gpi                                 VpiCbHdl.cpp:78   in arm_callback                    VPI: Unable to register a callback handle for VPI type cbStartOfSimulation(11)
+     -.--ns ERROR    cocotb.gpi                                 VpiCbHdl.cpp:78   in arm_callback                    VPI: Unable to register a callback handle for VPI type cbEndOfSimulation(12)
+Parsing design file '/user/hjnoh/WORK/cocotb/examples/adder/tests/../hdl/adder.v'
+Top Level Modules:
+       adder
+No TimeScale specified
+Starting vcs inline pass...
+2 modules and 0 UDP read.
+recompiling module adder
+Both modules done.
+make[2]: Entering directory `/user/hjnoh/WORK/cocotb/examples/adder/tests/sim_build/csrc'
+rm -f _csrc*.so amd64_scvhdl_*.so pre_vcsobj_*.so share_vcsobj_*.so
+ld -shared  -o .//../simv.daidir//_csrc0.so amcQwB.o 
+rm -f _csrc0.so
+if [ -x ../simv ]; then chmod -x ../simv; fi
+g++  -o ../simv   -Wl,-rpath-link=./ -Wl,-rpath='$ORIGIN'/simv.daidir/ -Wl,-rpath=./simv.daidir/ -Wl,-rpath='$ORIGIN'/simv.daidir//scsim.db.dir    _32649_archive_1.so _csrc0.so  SIM_l.o  _csrc0.so     rmapats_mop.o rmapats.o rmar.o  rmar_llvm_0_1.o rmar_llvm_0_0.o           /sw/Tools_Eval/Logic/VCS-MX/2014.12-SP3/amd64/lib/libzerosoft_rt_stubs.so /sw/Tools_Eval/Logic/VCS-MX/2014.12-SP3/amd64/lib/libvirsim.so /sw/Tools_Eval/Logic/VCS-MX/2014.12-SP3/amd64/lib/liberrorinf.so /sw/Tools_Eval/Logic/VCS-MX/2014.12-SP3/amd64/lib/libsnpsmalloc.so    /sw/Tools_Eval/Logic/VCS-MX/2014.12-SP3/amd64/lib/libvcsnew.so /sw/Tools_Eval/Logic/VCS-MX/2014.12-SP3/amd64/lib/libuclinative.so   -Wl,-whole-archive /sw/Tools_Eval/Logic/VCS-MX/2014.12-SP3/amd64/lib/libvcsucli.so -Wl,-no-whole-archive          /sw/Tools_Eval/Logic/VCS-MX/2014.12-SP3/amd64/lib/vcs_save_restore_new.o -ldl -lm -lm  -lc -lpthread -ldl 
+../simv up to date
+make[2]: Leaving directory `/user/hjnoh/WORK/cocotb/examples/adder/tests/sim_build/csrc'
+CPU time: .122 seconds to compile + .143 seconds to elab + .163 seconds to link
+PYTHONPATH=/user/hjnoh/WORK/cocotb/build/libs/x86_64:/user/hjnoh/WORK/cocotb:/user/hjnoh/WORK/cocotb/examples/adder/tests:/user/hjnoh/WORK/cocotb/examples/adder/tests/../model:/user/hjnoh/WORK/cocotb/examples/adder/tests/../model:/user/hjnoh/utils/wxPython-src-3.0.2.0/wxPython LD_LIBRARY_PATH=/user/hjnoh/WORK/cocotb/build/libs/x86_64:/sw/Tools/Logic/Novas/Novas-2014.03-SP1/share/PLI/VCS/LINUX64:/sw/Tools/Logic/Novas/Novas-2014.03-SP1/share/PLI/MODELSIM/LINUX64:/sw/Tools/Logic/Novas/Novas-2014.03-SP1/share/PLI/IUS/LINUX64:/sw/Tools/Logic/Novas/Novas-2014.03-SP1/share/PLI/IUS/LINUX64/boot:/sw/Tools/Logic/Novas/Novas-2014.03-SP1/share/PLI/IUS/LINUX:/sw/Tools/Logic/Novas/Novas-2014.03-SP1/share/PLI/IUS/LINUX/boot:/sw/Tools_Eval/Logic/Verdi/Novas-2015.09/share/PLI/IUS/LINUX64:/sw/Tools_Eval/Logic/Verdi/Novas-2015.09/share/PLI/MODELSIM/LINUX64:/sw/Tools_Eval/Logic/Verdi/Novas-2015.09/share/PLI/VCS/LINUX64:/lib:/sw/Tools/Logic/VCS-MX/2014.03/gnu/linux/gcc-4.7.2_64-shared/lib64:/sw/Tools/Logic/VCS-MX/2014.03/gnu/linux/gcc-4.7.2_64-shared/lib:/usr/lib:/usr/lib64:/user/hjnoh/local/lib:/user/hjnoh/local/lib:/user/hjnoh/local/lib:/user/hjnoh/local/lib MODULE=test_adder TESTCASE= TOPLEVEL=adder \
+        sim_build/simv +define+COCOTB_SIM=1  -full64
+
+Warning-[RT_UO] Unsupported option
+  Unsupported option '-full64' is ignored
+
+Chronologic VCS simulator copyright 1991-2014
+Contains Synopsys proprietary information.
+Compiler version J-2014.12-SP3_Full64; Runtime version J-2014.12-SP3_Full64;  Nov 13 14:57 2015
+     -.--ns INFO     cocotb.gpi                                GpiCommon.cpp:47   in gpi_print_registered_impl       VPI registered
+     0.00ns INFO     cocotb.gpi                                  gpi_embed.c:244  in embed_sim_init                  Running on Chronologic Simulation VCS Release  version J-2014.12-SP3_Full64
+     0.00ns INFO     cocotb.gpi                                  gpi_embed.c:245  in embed_sim_init                  Python interpreter initialised and cocotb loaded!
+     0.00ns INFO     cocotb                                      __init__.py:112  in _initialise_testbench           Running tests with Cocotb v1.0 from /user/hjnoh/WORK/cocotb
+     0.00ns INFO     cocotb                                      __init__.py:128  in _initialise_testbench           Seeding Python random module with 1447394256
+     0.00ns INFO     cocotb.regression                         regression.py:161  in initialise                      Found test test_adder.adder_basic_test
+     0.00ns INFO     cocotb.regression                         regression.py:161  in initialise                      Found test test_adder.adder_randomised_test
+     0.00ns INFO     cocotb.regression                         regression.py:262  in execute                         [44m[30mRunning test 1/2:[39m[49m adder_basic_test
+     0.00ns INFO     ..e.adder_basic_test.0x2aaab41c61d0       decorators.py:189  in send                            Starting test: "adder_basic_test"
+                                                                                                                     Description: Test for 5 + 10
+     0.00ns INFO     cocotb.adder                              test_adder.py:25   in adder_basic_test                Ok!
+     0.00ns INFO     cocotb.regression                         regression.py:209  in handle_result                   Test Passed: adder_basic_test
+     0.00ns INFO     cocotb.regression                         regression.py:262  in execute                         [44m[30mRunning test 2/2:[39m[49m adder_randomised_test
+     0.00ns INFO     ..er_randomised_test.0x2aaab41c65d0       decorators.py:189  in send                            Starting test: "adder_randomised_test"
+                                                                                                                     Description: Test for adding 2 random numbers multiple times
+     0.00ns INFO     cocotb.adder                              test_adder.py:47   in adder_randomised_test           Ok!
+     0.01ns INFO     cocotb.adder                              test_adder.py:47   in adder_randomised_test           Ok!
+     0.01ns INFO     cocotb.adder                              test_adder.py:47   in adder_randomised_test           Ok!
+     0.01ns INFO     cocotb.adder                              test_adder.py:47   in adder_randomised_test           Ok!
+     0.01ns INFO     cocotb.adder                              test_adder.py:47   in adder_randomised_test           Ok!
+     0.01ns INFO     cocotb.adder                              test_adder.py:47   in adder_randomised_test           Ok!
+     0.02ns INFO     cocotb.adder                              test_adder.py:47   in adder_randomised_test           Ok!
+     0.02ns INFO     cocotb.adder                              test_adder.py:47   in adder_randomised_test           Ok!
+     0.02ns INFO     cocotb.adder                              test_adder.py:47   in adder_randomised_test           Ok!
+     0.02ns INFO     cocotb.adder                              test_adder.py:47   in adder_randomised_test           Ok!
+     0.02ns INFO     cocotb.regression                         regression.py:209  in handle_result                   Test Passed: adder_randomised_test
+     0.02ns INFO     cocotb.regression                         regression.py:170  in tear_down                       Passed 2 tests (0 skipped)
+     0.02ns INFO     cocotb.regression                         regression.py:176  in tear_down                       Shutting down...
+           V C S   S i m u l a t i o n   R e p o r t 
+Time: 28
+CPU Time:      0.230 seconds;       Data structure size:   0.0Mb
+Fri Nov 13 14:57:36 2015
+make[1]: Leaving directory `/user/hjnoh/WORK/cocotb/examples/adder/tests'
