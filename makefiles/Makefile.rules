@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2013 Potential Ventures Ltd
+# Copyright (c) 2013, 2018 Potential Ventures Ltd
 # Copyright (c) 2013 SolarFlare Communications Inc
 # All rights reserved.
 #
@@ -36,6 +36,17 @@
 # Define some of our own
 $(LIB_NAME)_OBJS:= $(patsubst %.c,$(LIB_OBJ_DIR)/%.o,$(filter %.c,$(SRCS)))
 $(LIB_NAME)_OBJS+= $(patsubst %.cpp,$(LIB_OBJ_DIR)/%.o,$(filter %.cpp,$(SRCS)))
+
+SIM_DEFINE := $(shell echo $(SIM) | tr a-z A-Z)
+
+# Use a common define for Questa and Modelsim
+ifeq ($(SIM_DEFINE),QUESTA)
+SIM_DEFINE = MODELSIM
+endif
+
+# Add Simulator Define for compilation
+GCC_ARGS+= -D$(SIM_DEFINE)
+GXX_ARGS+= -D$(SIM_DEFINE)
 
 $(LIB_OBJ_DIR)/%.o: %.c
 	gcc $(GCC_ARGS) -c $(INCLUDES) -o $@ $<

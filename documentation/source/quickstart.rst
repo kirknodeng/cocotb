@@ -34,7 +34,7 @@ Redhat based installation
 
 .. code-block:: bash
 
-    $> sudo yum install gcc gcc-c++ libstdc++-devel python-devel
+    $> sudo yum install gcc gcc-c++ libstdc++-devel swig python-devel
 
 This will allow building of the Cocotb libs for use with a 64 bit native simulator. If a 32 bit simulator is being used then additional steps to install 32bit development libraries and python are needed. 
 
@@ -108,6 +108,19 @@ It is beneficial to add the path to Python to the windows system PATH variable s
 
 Once inside the Msys shell commands as given here will work as expected.
 
+MAC Packages
+------------
+
+You need a few packages installed to get cocotb running on mac.
+Installing a package manager really helps things out here.
+
+Brew_ seems to be the most popular, so we'll assume you have that installed.
+.. _Brew: http://www.brew.sh
+
+.. code-block::bash
+    
+    $> brew install python icarus-verilog gtkwave
+    
 Running an example
 ------------------
 
@@ -127,11 +140,11 @@ To run a test using a different simulator:
 Running a VHDL example
 ----------------------
 
-The endian swapper example includes both a VHDL and Verilog RTL implementation.  The Cocotb testbench can execute against either implementation using VPI for Verilog and VHPI for VHDL.  To run the test suite against the VHDL implementation use the following command (a VHPI capable simulator must be used):
+The endian swapper example includes both a VHDL and Verilog RTL implementation.  The Cocotb testbench can execute against either implementation using VPI for Verilog and VHPI/FLI for VHDL.  To run the test suite against the VHDL implementation use the following command (a VHPI or FLI capable simulator must be used):
 
 .. code-block:: bash
 
-    $> make SIM=aldec GPI_IMPL=vhpi
+    $> make SIM=aldec TOPLEVEL_LANG=vhdl
 
 
 
@@ -178,13 +191,13 @@ we could create a test file containing the following:
         """
         Try accessing the design
         """
-        dut.log.info("Running test!")
+        dut._log.info("Running test!")
         for cycle in range(10):
             dut.clk = 0
             yield Timer(1000)
             dut.clk = 1
             yield Timer(1000)
-        dut.log.info("Running test!")
+        dut._log.info("Running test!")
 
 This will drive a square wave clock onto the ``clk`` port of the toplevel.
 
@@ -232,18 +245,18 @@ Accessing the .value property of a handle object will return a :class:`BinaryVal
     
     >>> # Read a value back from the dut
     >>> count = dut.counter.value
-    >>> 
-    >>> print count.binstr
+    >>>
+    >>> print(count.binstr)
     1X1010
     >>> # Resolve the value to an integer (X or Z treated as 0)
-    >>> print count.integer
+    >>> print(count.integer)
     42
 
 We can also cast the signal handle directly to an integer:
 
 .. code-block:: python
-    
-    >>> print int(dut.counter)
+
+    >>> print(int(dut.counter))
     42
 
 
@@ -258,7 +271,7 @@ Parallel and sequential execution of coroutines
         reset_n <= 0
         yield Timer(duration)
         reset_n <= 1
-        reset_n.log.debug("Reset complete")
+        reset_n._log.debug("Reset complete")
     
     @cocotb.test()
     def parallel_example(dut):
@@ -267,17 +280,17 @@ Parallel and sequential execution of coroutines
         # This will call reset_dut sequentially
         # Execution will block until reset_dut has completed
         yield reset_dut(reset_n, 500)
-        dut.log.debug("After reset")
+        dut._log.debug("After reset")
         
         # Call reset_dut in parallel with this coroutine
         reset_thread = cocotb.fork(reset_dut(reset_n, 500)
         
         yield Timer(250)
-        dut.log.debug("During reset (reset_n = %s)" % reset_n.value)
+        dut._log.debug("During reset (reset_n = %s)" % reset_n.value)
         
         # Wait for the other thread to complete
         yield reset_thread.join()
-        dut.log.debug("After reset")
+        dut._log.debug("After reset")
 
 
 Creating a test

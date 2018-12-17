@@ -25,8 +25,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ###############################################################################
 
-COCOTB?=$(shell pwd)/../
-export COCOTB
+include ../makefiles/Makefile.inc
 
 REGRESSIONS :=  $(shell ls test_cases/)
 
@@ -35,7 +34,15 @@ REGRESSIONS :=  $(shell ls test_cases/)
 all: $(REGRESSIONS)
 
 $(REGRESSIONS):
+ifeq ($(TRAVIS),true)
+	@echo "travis_fold:start:$@"
+endif
 	cd test_cases/$@ && $(MAKE)
+ifeq ($(TRAVIS),true)
+	@echo "travis_fold:end:$@"
+endif
+
+
 
 clean:
 	$(foreach TEST, $(REGRESSIONS), $(MAKE) -C test_cases/$(TEST) clean;)

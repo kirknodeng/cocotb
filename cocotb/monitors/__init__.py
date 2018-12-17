@@ -36,6 +36,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. '''
 """
 
 import math
+from collections import deque
 
 import cocotb
 from cocotb.decorators import coroutine
@@ -53,19 +54,30 @@ class MonitorStatistics(object):
 
 
 class Monitor(object):
+    """Base class for Monitor objects. Monitors are passive 'listening' objects
+    that monitor pins in or out of a DUT. This class should not be used
+    directly, but should be subclassed and the internal `_monitor_recv` method
+    should be overridden and decorated as a @coroutine.  This `_monitor_recv`
+    method should capture some behavior of the pins, form a transaction, and
+    pass this transaction to the internal `_recv` method.  The `_monitor_recv`
+    method is added to the cocotb scheduler during the `__init__` phase, so it
+    should not be yielded anywhere.
+
+    The primary use of a Monitor is as an interface for a
+    :py:class:`cocotb.scoreboard.Scoreboard`.
+
+    Args:
+        callback (callable): Callback to be called with each recovered transaction 
+            as the argument. If the callback isn't used, received transactions will 
+            be placed on a queue and the event used to notify any consumers.
+        event (event): Object that supports a `set` method that will be called when
+            a transaction is received through the internal `_recv` method.
+    """
 
     def __init__(self, callback=None, event=None):
-        """
-        Constructor for a monitor instance
-
-        callback will be called with each recovered transaction as the argument
-
-        If the callback isn't used, received transactions will be placed on a
-        queue and the event used to notify any consumers.
-        """
         self._event = event
         self._wait_event = None
-        self._recvQ = []
+        self._recvQ = deque()
         self._callbacks = []
         self.stats = MonitorStatistics()
         self._wait_event = Event()
@@ -150,13 +162,14 @@ class BusMonitor(Monitor):
     _optional_signals = []
 
     def __init__(self, entity, name, clock, reset=None, reset_n=None,
-                 callback=None, event=None):
-        self.log = SimLog("cocotb.%s.%s" % (entity.name, name))
+                 callback=None, event=None, bus_separator="_"):
+        self.log = SimLog("cocotb.%s.%s" % (entity._name, name))
         self.entity = entity
         self.name = name
         self.clock = clock
         self.bus = Bus(self.entity, self.name, self._signals,
-                       optional_signals=self._optional_signals)
+                       optional_signals=self._optional_signals,
+                       bus_separator=bus_separator)
         self._reset = reset
         self._reset_n = reset_n
         Monitor.__init__(self, callback=callback, event=event)

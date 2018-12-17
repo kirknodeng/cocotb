@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-''' Copyright (c) 2013 Potential Ventures Ltd
+''' Copyright (c) 2013, 2018 Potential Ventures Ltd
 Copyright (c) 2013 SolarFlare Communications Inc
 All rights reserved.
 
@@ -41,6 +41,7 @@ from cocotb.result import ReturnValue, TestFailure
 from cocotb.triggers import Timer, Join, RisingEdge, ReadOnly, Edge, ReadWrite
 from cocotb.clock import Clock
 from cocotb.decorators import external
+from cocotb.utils import get_sim_time
 
 test_count = 0
 g_dut = None
@@ -51,7 +52,7 @@ g_dut = None
 @cocotb.function
 def decorated_test_read(dut, signal):
     global test_count
-    dut.log.info("Inside decorated_test_read")
+    dut._log.info("Inside decorated_test_read")
     test_count = 0
     while test_count is not 5:
         yield RisingEdge(dut.clk)
@@ -62,7 +63,7 @@ def decorated_test_read(dut, signal):
 
 def test_read(dut, signal):
     global test_count
-    dut.log.info("Inside test_read")
+    dut._log.info("Inside test_read")
     while test_count is not 5:
         yield RisingEdge(dut.clk)
         test_count += 1
@@ -73,7 +74,7 @@ def hal_read(function):
     global test_count
     test_count = 0
     function(g_dut, g_dut.stream_out_ready)
-    g_dut.log.info("Cycles seen is %d" % test_count)
+    g_dut._log.info("Cycles seen is %d" % test_count)
 
 
 def create_thread(function):
@@ -94,7 +95,7 @@ def clock_gen(clock):
         clock <= 1
         yield Timer(100)
 
-    clock.log.warning("Clock generator finished!")
+    clock._log.warning("Clock generator finished!")
 
 
 @cocotb.test(expect_fail=False, skip=True)
@@ -110,7 +111,7 @@ def test_callable(dut):
     global test_count
     g_dut = dut
     create_thread(decorated_test_read)
-    dut.log.info("Test thread created")
+    dut._log.info("Test thread created")
     clk_gen = cocotb.fork(Clock(dut.clk, 100).start())
     yield Timer(100000)
     clk_gen.kill()
@@ -126,13 +127,13 @@ def test_callable_fail(dut):
 
     Test creates a thread to simulate another context. This thread will then
     "block" for 5 clock cycles but not using the function decorator.
-    No cycls should be seen.
+    No cycles should be seen.
     """
     global g_dut
     global test_count
     g_dut = dut
     create_thread(test_read)
-    dut.log.info("Test thread created")
+    dut._log.info("Test thread created")
     clk_gen = cocotb.fork(Clock(dut.clk, 100).start())
     yield Timer(100000)
     clk_gen.kill()
@@ -141,14 +142,17 @@ def test_callable_fail(dut):
 
 
 def test_ext_function(dut):
-    # dut.log.info("Sleeping")
+    # dut._log.info("Sleeping")
     return 2
 
 
 @cocotb.function
 def yield_to_readwrite(dut):
     yield RisingEdge(dut.clk)
-    dut.log.info("Returning from yield_to_readwrite")
+    dut._log.info("Returning from yield_to_readwrite")
+    yield RisingEdge(dut.clk)
+    dut._log.info("Returning from yield_to_readwrite")
+    yield Timer(1, "ns")
     raise ReturnValue(2)
 
 
@@ -158,9 +162,20 @@ def test_ext_function_access(dut):
 
 def test_ext_function_return(dut):
     value = dut.clk.value.integer
-    # dut.log.info("Sleeping and returning %s" % value)
+    # dut._log.info("Sleeping and returning %s" % value)
     # time.sleep(0.2)
     return value
+
+def test_print_sim_time(dut, base_time):
+    # We are not calling out here so time should not advance
+    # And should also remain consistent
+    for _ in range(5):
+        _t = get_sim_time('ns')
+        dut._log.info("Time reported = %d", _t)
+        if _t != base_time:
+            raise TestFailure("Time reported does not match base_time %f != %f" %
+                              (_t, base_time))
+    dut._log.info("external function has ended")
 
 
 @cocotb.coroutine
@@ -171,20 +186,38 @@ def clock_monitor(dut):
         yield Timer(1000)
         count += 1
 
+@cocotb.test(expect_fail=False)
+def test_time_in_external(dut):
+    """Test that the simulation time does not advance if the wrapped external
+    routine does not itself yield"""
+    clk_gen = cocotb.fork(Clock(dut.clk, 100).start())
+    yield Timer(10, 'ns')
+    time = get_sim_time('ns')
+    dut._log.info("Time at start of test = %d" % time)
+    for i in range(100):
+        dut._log.info("Loop call %d" % i)
+        yield external(test_print_sim_time)(dut, time)
+
+    time_now = get_sim_time('ns')
+    yield Timer(10, 'ns')
+
+    if time != time_now:
+        raise TestFailure("Time has elapsed over external call")
+
 
 @cocotb.test(expect_fail=False)
 def test_ext_call_return(dut):
-    """Test ability to yeild on an external non cocotb coroutine decorated
+    """Test ability to yield on an external non cocotb coroutine decorated
     function"""
     mon = cocotb.scheduler.queue(clock_monitor(dut))
     clk_gen = cocotb.fork(Clock(dut.clk, 100).start())
     value = yield external(test_ext_function)(dut)
-    dut.log.info("Value was %d" % value)
+    dut._log.info("Value was %d" % value)
 
 
 @cocotb.test(expect_fail=False)
 def test_ext_call_nreturn(dut):
-    """Test ability to yeild on an external non cocotb coroutine decorated
+    """Test ability to yield on an external non cocotb coroutine decorated
     function"""
     mon = cocotb.scheduler.queue(clock_monitor(dut))
     clk_gen = cocotb.fork(Clock(dut.clk, 100).start())
@@ -195,9 +228,9 @@ def test_ext_call_nreturn(dut):
 def test_multiple_externals(dut):
     clk_gen = cocotb.fork(Clock(dut.clk, 100).start())
     value = yield external(test_ext_function)(dut)
-    dut.log.info("First one completed")
+    dut._log.info("First one completed")
     value = yield external(test_ext_function)(dut)
-    dut.log.info("Second one completed")
+    dut._log.info("Second one completed")
 
 
 @cocotb.test(expect_fail=False)
@@ -205,13 +238,41 @@ def test_external_from_readonly(dut):
     clk_gen = cocotb.fork(Clock(dut.clk, 100).start())
 
     yield ReadOnly()
-    dut.log.info("In readonly")
+    dut._log.info("In readonly")
+    value = yield external(test_ext_function)(dut)
+
+@cocotb.test(expect_fail=False)
+def test_external_that_yields(dut):
+    clk_gen = cocotb.fork(Clock(dut.clk, 100).start())
+
     value = yield external(test_ext_function_access)(dut)
 
+@cocotb.test(expect_fail=False)
+def test_external_and_continue(dut):
+    clk_gen = cocotb.fork(Clock(dut.clk, 100).start())
+
+    value = yield external(test_ext_function_access)(dut)
+
+    yield Timer(10, "ns")
+    yield RisingEdge(dut.clk)
+
+@cocotb.coroutine
+def run_external(dut):
+    value = yield external(test_ext_function_access)(dut)
+    raise ReturnValue(value)
+
+@cocotb.test(expect_fail=False)
+def test_external_from_fork(dut):
+    clk_gen = cocotb.fork(Clock(dut.clk, 100).start())
+
+    coro = cocotb.fork(run_external(dut))
+    yield coro.join()
+
+    dut._log.info("Back from join")
 
 @cocotb.test(expect_fail=True, skip=True)
-def ztest_ext_exit_error(dut):
-    """Test that a premature exit of the sim at it's request still results in
+def test_ext_exit_error(dut):
+    """Test that a premature exit of the sim at its request still results in
     the clean close down of the sim world"""
     yield external(test_ext_function)(dut)
     yield Timer(1000)

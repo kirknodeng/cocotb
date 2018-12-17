@@ -1,5 +1,5 @@
 ###############################################################################
-# Copyright (c) 2013 Potential Ventures Ltd
+# Copyright (c) 2013, 2018 Potential Ventures Ltd
 # Copyright (c) 2013 SolarFlare Communications Inc
 # All rights reserved.
 #
@@ -28,7 +28,7 @@
 ###############################################################################
 
 # Default to verilog
-GPI_IMPL ?= vpi
+TOPLEVEL_LANG ?= verilog
 
 WPWD=$(shell sh -c 'pwd -W')
 PWD=$(shell pwd)
@@ -41,18 +41,15 @@ else
 WPWD=$(shell pwd)
 PYTHONPATH := $(PWD)/../cosim:$(PYTHONPATH)
 endif
-export PYTHONPATH
 
-ifeq ($(GPI_IMPL),vpi)
+ifeq ($(TOPLEVEL_LANG),verilog)
     VERILOG_SOURCES = $(WPWD)/../hdl/endian_swapper.sv
     TOPLEVEL = endian_swapper_sv
-    GPI_IMPL=vpi
-endif
-
-ifeq ($(GPI_IMPL),vhpi)
+else ifeq ($(TOPLEVEL_LANG),vhdl)
     VHDL_SOURCES = $(WPWD)/../hdl/endian_swapper.vhdl
     TOPLEVEL = endian_swapper_vhdl
-    GPI_IMPL=vhpi
+else
+    $(error "A valid value (verilog or vhdl) was not provided for TOPLEVEL_LANG=$(TOPLEVEL_LANG)")
 endif
 
 MODULE=test_endian_swapper
@@ -60,7 +57,6 @@ MODULE=test_endian_swapper
 CUSTOM_COMPILE_DEPS = hal
 
 LD_LIBRARY_PATH := $(PWD)/../cosim:$(LD_LIBRARY_PATH)
-export LD_LIBRARY_PATH
 
 include $(COCOTB)/makefiles/Makefile.inc
 include $(COCOTB)/makefiles/Makefile.sim
@@ -70,7 +66,7 @@ hal:
 	-cd ../cosim && make
 
 # Stuff below is useful for profiling
-# Need grof2dot from https://github.com/jrfonseca/gprof2dot
+# Need gprof2dot from https://github.com/jrfonseca/gprof2dot
 test_profile.pstat: sim
 
 callgraph.svg: test_profile.pstat

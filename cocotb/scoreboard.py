@@ -53,7 +53,7 @@ class Scoreboard(object):
 
     def __init__(self, dut, reorder_depth=0, fail_immediately=True):
         self.dut = dut
-        self.log = SimLog("cocotb.scoreboard.%s" % self.dut.name)
+        self.log = SimLog("cocotb.scoreboard.%s" % self.dut._name)
         self.errors = 0
         self.expected = {}
         self._imm = fail_immediately
@@ -95,12 +95,12 @@ class Scoreboard(object):
         # Compare the types
         if strict_type and type(got) != type(exp):
             self.errors += 1
-            log.error("Received transaction is a different type to expected "
-                      "transaction")
-            log.info("Got: %s but expected %s" %
+            log.error("Received transaction type is different than expected")
+            log.info("Received: %s but expected %s" %
                      (str(type(got)), str(type(exp))))
             if self._imm:
-                raise TestFailure("Received transaction of wrong type")
+                raise TestFailure("Received transaction of wrong type. "
+                                  "Set strict_type=False to avoid this.")
             return
         # Or convert to a string before comparison
         elif not strict_type:
@@ -114,14 +114,20 @@ class Scoreboard(object):
             strgot, strexp = str(got), str(exp)
 
             log.error("Received transaction differed from expected output")
-            log.info("Expected:\n" + hexdump(strexp))
+            if not strict_type:
+                log.info("Expected:\n" + hexdump(strexp))
+            else:
+                log.info("Expected:\n" + repr(exp))
             if not isinstance(exp, str):
                 try:
                     for word in exp:
                         log.info(str(word))
                 except:
                     pass
-            log.info("Received:\n" + hexdump(strgot))
+            if not strict_type:
+                log.info("Received:\n" + hexdump(strgot))
+            else:
+                log.info("Received:\n" + repr(got))
             if not isinstance(got, str):
                 try:
                     for word in got:
@@ -174,7 +180,12 @@ class Scoreboard(object):
             """Called back by the monitor when a new transaction has been
             received"""
 
-            log = logging.getLogger(self.log.name + '.' + monitor.name)
+            if monitor.name:
+                log_name = self.log.name + '.' + monitor.name
+            else:
+                log_name = self.log.name + '.' + monitor.__class__.__name__
+
+            log = logging.getLogger(log_name)
 
             if callable(expected_output):
                 exp = expected_output(transaction)

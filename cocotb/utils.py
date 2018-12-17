@@ -1,6 +1,6 @@
 from __future__ import print_function
 
-''' Copyright (c) 2013 Potential Ventures Ltd
+''' Copyright (c) 2013, 2018 Potential Ventures Ltd
 Copyright (c) 2013 SolarFlare Communications Inc
 All rights reserved.
 
@@ -30,7 +30,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. '''
 """Collection of handy functions"""
 
 import ctypes
+import math
+import os
+import sys
 
+# For autodocumentation don't need the extension modules
+if "SPHINX_BUILD" in os.environ:
+    simulator = None
+    _LOG_SIM_PRECISION = -15
+else:
+    import simulator
+    _LOG_SIM_PRECISION = simulator.get_precision() # request once and cache
 
 # python2 to python3 helper functions
 def get_python_integer_types():
@@ -40,6 +50,87 @@ def get_python_integer_types():
         return (int,)  # python 3
     else:
         return (int, long)  # python 2
+
+# Simulator helper functions
+def get_sim_time(units=None):
+    """Retrieves the simulation time from the simulator
+
+    Kwargs:
+        units (str):  String specifying the units of the result. (None,'fs','ps','ns','us','ms','sec')
+                      None will return the raw simulation time.
+
+    Returns:
+        The simulation time in the specified units
+    """
+    timeh, timel = simulator.get_sim_time()
+
+    result = (timeh << 32 | timel)
+
+    if units is not None:
+        result = get_time_from_sim_steps(result, units)
+
+    return result
+
+def get_time_from_sim_steps(steps, units):
+    """Calculates simulation time in the specified units from the steps based on the simulator precision.
+
+    Args:
+        steps (int):  Number of simulation steps
+        units (str):  String specifying the units of the result. ('fs','ps','ns','us','ms','sec')
+
+    Returns:
+        The simulation time in the specified units
+    """
+    result = steps * (10.0**(_LOG_SIM_PRECISION - _get_log_time_scale(units)))
+
+    return result
+
+def get_sim_steps(time, units=None):
+    """Calculates the number of Simulation time steps for a given amount of time
+
+    Args:
+        time (int/float):  The value to convert to simulation time steps.
+
+    Kwargs:
+        units (str):  String specifying the units of the result. (None,'fs','ps','ns','us','ms','sec')
+                      None means time is already in simulation time steps.
+
+    Returns:
+        The number of simulation time steps
+    """
+    result = time
+    if units is not None:
+        result = result * (10.0**(_get_log_time_scale(units) - _LOG_SIM_PRECISION))
+
+    err = int(result) - math.ceil(result)
+
+    if err:
+        raise ValueError("Unable to accurately represent {0}({1}) with the simulator precision of 1e{2}".format(time,units,_LOG_SIM_PRECISION))
+
+    return int(result)
+
+def _get_log_time_scale(units):
+    """Retrieves the log10() of the scale factor for a given time unit
+
+    Args:
+        units (str):  String specifying the units. ('fs','ps','ns','us','ms','sec')
+
+    Returns:
+        The the log10() of the scale factor for the time unit
+    """
+    scale = {
+        'fs' :    -15,
+        'ps' :    -12,
+        'ns' :     -9,
+        'us' :     -6,
+        'ms' :     -3,
+        'sec':      0}
+
+    units_lwr = units.lower()
+    if units_lwr not in scale:
+        raise ValueError("Invalid unit ({0}) provided".format(units))
+    else:
+        return scale[units_lwr]
 
 # Ctypes helper functions
 
@@ -140,8 +231,17 @@ def hexdiffs(x, y):
                 r = r + i
         return r
 
-    def highlight(string, colour=ANSI.YELLOW_FG):
-        return colour + string + ANSI.DEFAULT_FG + ANSI.DEFAULT_BG
+    def highlight(string, colour=ANSI.COLOR_HILITE_HEXDIFF_DEFAULT):
+        want_ansi = os.getenv("COCOTB_ANSI_OUTPUT")
+        if want_ansi is None:
+            want_ansi = sys.stdout.isatty()  # default to ANSI for TTYs
+        else:
+            want_ansi = want_ansi == '1'
+
+        if want_ansi:
+            return colour + string + ANSI.COLOR_DEFAULT
+        else:
+            return string
 
     rs = ""
 
@@ -201,7 +301,7 @@ def hexdiffs(x, y):
             if dox != doy:
                 rs += highlight("%04x" % xd) + " "
             else:
-                rs += highlight("%04x" % xd, colour=ANSI.CYAN_FG) + " "
+                rs += highlight("%04x" % xd, colour=ANSI.COLOR_HILITE_HEXDIFF_1) + " "
             x += xx
             line = linex
         else:
@@ -215,7 +315,7 @@ def hexdiffs(x, y):
             if doy - dox != 0:
                 rs += " " + highlight("%04x" % yd)
             else:
-                rs += highlight("%04x" % yd, colour=ANSI.CYAN_FG)
+                rs += highlight("%04x" % yd, colour=ANSI.COLOR_HILITE_HEXDIFF_1)
             y += yy
             line = liney
         else:
@@ -229,15 +329,15 @@ def hexdiffs(x, y):
                 if line[j]:
                     if linex[j] != liney[j]:
                         rs += highlight("%02X" % ord(line[j]),
-                                        colour=ANSI.RED_FG)
+                                        colour=ANSI.COLOR_HILITE_HEXDIFF_2)
                     else:
                         rs += "%02X" % ord(line[j])
                     if linex[j] == liney[j]:
                         cl += highlight(_sane_color(line[j]),
-                                        colour=ANSI.MAGENTA_FG)
+                                        colour=ANSI.COLOR_HILITE_HEXDIFF_3)
                     else:
                         cl += highlight(sane(line[j]),
-                                        colour=ANSI.CYAN_BG + ANSI.BLACK_FG)
+                                        colour=ANSI.COLOR_HILITE_HEXDIFF_4)
                 else:
                     rs += "  "
                     cl += " "
@@ -259,6 +359,26 @@ def hexdiffs(x, y):
             else:
                 i += 16
     return rs
+
+
+# This is essentially six.exec_
+if sys.version_info.major == 3:
+    # this has to not be a syntax error in py2
+    import builtins
+    exec_ = getattr(builtins, 'exec')
+else:
+    # this has to not be a syntax error in py3
+    def exec_(_code_, _globs_=None, _locs_=None):
+        """Execute code in a namespace."""
+        if _globs_ is None:
+            frame = sys._getframe(1)
+            _globs_ = frame.f_globals
+            if _locs_ is None:
+                _locs_ = frame.f_locals
+            del frame
+        elif _locs_ is None:
+            _locs_ = _globs_
+        exec("""exec _code_ in _globs_, _locs_""")
 
 
 if __name__ == "__main__":

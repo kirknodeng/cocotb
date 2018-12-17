@@ -37,7 +37,6 @@ import threading
 import random
 import time
 
-
 import cocotb.handle
 from cocotb.scheduler import Scheduler
 from cocotb.log import SimLogFormatter, SimBaseLog, SimLog
@@ -45,7 +44,7 @@ from cocotb.regression import RegressionManager
 
 
 # Things we want in the cocotb namespace
-from cocotb.decorators import test, coroutine, function, external
+from cocotb.decorators import test, coroutine, hook, function, external
 
 # Singleton scheduler instance
 # NB this cheekily ensures a singleton since we're replacing the reference
@@ -55,6 +54,7 @@ from cocotb.decorators import test, coroutine, function, external
 # GPI logging instance
 # For autodocumentation don't need the extension modules
 if "SPHINX_BUILD" not in os.environ:
+    import simulator
     logging.basicConfig()
     logging.setLoggerClass(SimBaseLog)
     log = SimLog('cocotb')
@@ -66,6 +66,23 @@ if "SPHINX_BUILD" not in os.environ:
         _default_log = logging.INFO
     log.setLevel(_default_log)
     loggpi = SimLog('cocotb.gpi')
+    # Notify GPI of log level
+    simulator.log_level(_default_log)
+
+    # If stdout/stderr are not TTYs, Python may not have opened them with line
+    # buffering. In that case, try to reopen them with line buffering
+    # explicitly enabled. This ensures that prints such as stack traces always
+    # appear. Continue silently if this fails.
+    try:
+        if not sys.stdout.isatty():
+            sys.stdout = os.fdopen(sys.stdout.fileno(), 'w', 1)
+            log.debug("Reopened stdout with line buffering")
+        if not sys.stderr.isatty():
+            sys.stderr = os.fdopen(sys.stderr.fileno(), 'w', 1)
+            log.debug("Reopened stderr with line buffering")
+    except Exception as e:
+        log.warning("Failed to ensure that stdout/stderr are line buffered: %s", e)
+        log.warning("Some stack traces may not appear because of this.")
 
 
 scheduler = Scheduler()
@@ -93,6 +110,9 @@ def _initialise_testbench(root_name):
     The test must be defined by the environment variables
         MODULE
         TESTCASE
+
+    The environment variable COCOTB_HOOKS contains a comma-separated list of
+        modules that should be executed before the first test.
     """
     _rlock.acquire()
 
@@ -133,16 +153,18 @@ def _initialise_testbench(root_name):
 
     module_str = os.getenv('MODULE')
     test_str = os.getenv('TESTCASE')
+    hooks_str = os.getenv('COCOTB_HOOKS', '')
 
     if not module_str:
-        raise ImportError("Environment variables defining the module(s) to \
-                        execute not defined.  MODULE=\"%s\"\"" % (module_str))
+        raise ImportError("Environment variables defining the module(s) to " +
+                          "execute not defined.  MODULE=\"%s\"" % (module_str))
 
     modules = module_str.split(',')
+    hooks = hooks_str.split(',') if hooks_str else []
 
     global regression
 
-    regression = RegressionManager(root_name, modules, tests=test_str)
+    regression = RegressionManager(root_name, modules, tests=test_str, seed=seed, hooks=hooks)
     regression.initialise()
     regression.execute()
 
